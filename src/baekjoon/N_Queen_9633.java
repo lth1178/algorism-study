@@ -16,7 +16,7 @@ public class N_Queen_9633 {
 			//재귀 호출 or result++를 위한 flag
 			boolean nextFlag = true;
 			queen[num] = i;
-
+ 
 			//앞에 놓은 퀸들과 서로 잡히지 않는지 확인
 			for(int j = 0; j < num; j++) {
 
