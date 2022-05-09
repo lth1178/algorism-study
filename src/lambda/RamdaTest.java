@@ -1,4 +1,4 @@
-package Ramda;
+package lambda;
 
 public class RamdaTest {
 

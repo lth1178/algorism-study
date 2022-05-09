@@ -63,67 +63,76 @@ public class ThanksgivingDayTraffic {
 		String standardEndTime="2016-09-16 00:00:00.000";
 		
 		int result = 0;
-		
 		int resultBox=0;
-		
 		int index = 0;
-		String[] lines = new String[4];
 		
+		String[] lines = new String[4];
 		
 		int processingTime; 
 		final int aryLenth = lines.length;
 		
 		Date[] startTimes = new Date[aryLenth];
 		Date[] endTimes = new Date[aryLenth];
-		
-		String startTime;
-		String endTime;
-		
+
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		
+		//요청 시간을 구하기 위한 번수
 		Calendar calStartTime = Calendar.getInstance();
-		Calendar calEndTime = Calendar.getInstance();
 		
-		Calendar calStampStartTime = Calendar.getInstance();
+		//초당 처리량을 계산하기 위해 기준이 되는 1초의 시작시간
+		Calendar calStampTime = Calendar.getInstance();
+		//초당 처리량을 계산하기 위해 기준이 되는 1초의 종료
 		Calendar calStampEndTime = Calendar.getInstance();
 		
+		//처리중 플래그 배열
+		Boolean [] processingFlags = new Boolean[aryLenth];
+		
+		
+		calStampEndTime.setTime(calStampTime.getTime());
+		
+		//요청 시작시간 구하기
 		for(int i=0; i<aryLenth; i++) {
-			endTimes[i] = simpleDateFormat.parse(lines[i].split(" ")[0]);
+			endTimes[i] = simpleDateFormat.parse(lines[i].split(" ")[0] + " " + lines[i].split(" ")[1]);
 			
-			processingTime = (int) ((Double.parseDouble(lines[i].split(" ")[1]) - 0.001) * 1000);
+			processingTime = (int) ((Double.parseDouble(lines[i].split(" ")[2].substring(0, lines[i].split(" ")[2].length()-1)) - 0.001) * 1000);
+			
 			calStartTime.setTime(endTimes[i]);
 			
 			calStartTime.add(Calendar.MILLISECOND, -processingTime);
 			
 			startTimes[i] = calStartTime.getTime();
 		}
+		
+		calStampTime.setTime(startTimes[0]);
 		while(true){
 			resultBox=0;
+			calStampTime.add(Calendar.MILLISECOND, index);
 			
-			
-			calStampStartTime.setTime(startTimes[0]);
-			calStampStartTime.add(Calendar.MILLISECOND, index);
-			
-			calStampEndTime.setTime(calStampStartTime.getTime());
-			calStampEndTime.add(Calendar.MILLISECOND, 999);
+			//플래그 초기화
 			for(int i=0; i<aryLenth; i++) {
-				//만약 calStampTime이 
-				
-				// if 시작시간이 기준 시작 시간보다 크거나 같을때
-				if(startTimes[i].equals(simpleDateFormat.parse(standardStartTime) || startTimes[i].after(simpleDateFormat.parse(standardStartTime))){
-					
-				}
-					//시작 시간이 calStampStartTime보다 크거나 같고   calStampEndTime보다 작거나 같으면 resultBox++
+				processingFlags[i] = false;
+			}
 			
-				//else if 종료시간이 기준 종료 시간보다 작을때					
-					//종료시간이 calStampStartTime보다 크거나 같고   calStampEndTime보다 작거나 같으면 resultBox++
+			//1초동안 처리가 있었던 개수 파악
+			for(int j = index; j<=index + 999; index ++) {
+				for(int i=0; i<aryLenth; i++) {
+					calStampTime.add(Calendar.MILLISECOND, j);
+					//만약 calStampTime이 요청 시작시간과 요청 종료시간의 사이일 때 true
+					if((calStampTime.getTime().equals(startTimes[i]) || calStampTime.getTime().after(startTimes[i])) && (calStampTime.getTime().equals(endTimes[i]) || calStampTime.getTime().before(endTimes[i]))) {
+						processingFlags[i] = true;
+					}
+				}
+			}
+			for(int i=0; i<aryLenth; i++) {
+				if(processingFlags[i])
+				resultBox++;
 			}
 			
 			if(resultBox>result) {
 				result = resultBox;
 			}
 			
-			if(calStampEndTime.getTime().after(endTimes[aryLenth-1])) {
+			if(calStampTime.getTime().after(endTimes[aryLenth-1])) {
 				break;
 			}
 			index++;
